@@ -75,7 +75,8 @@ http://10.0.79.103:3000/
 
 ## 当前已测试模型
 
-参考 model.open_model.py
+> 参考 model.open_model.py
+
 ```python
 torch_model_list = [
 'm3e-small',
@@ -97,6 +98,28 @@ torch_model_list = [
 'Ernie-model/rocketqa-zh-base-query-encoder'
 ]
 ```
+
+> 结果
+
+| 策略 | 模型 | Recall@1 | Recall@5 | Recall@10 | Recall@20 | Recall@50 | 备注 |
+| --- | --- | --- | --- | --- | --- | ---| --- | 
+|-|m3e-small|42.647|74.265|87.5| | |基础模型|
+|-|m3e-base|42.647|78.676|88.235| | |基础模型|
+|-|m3e-large|36.029|61.765|72.059| | |基础模型|
+|-|bge-small-zh|36.765|65.441|74.265| | |基础模型|
+|-|bge-base-zh|38.235|64.706|78.676| | |基础模型|
+|-|bge-large-zh|38.971|68.382|82.353| | |基础模型|
+|-|text2vec-base-chinese|40.441|72.059|80.147| | |基础模型|
+|-|text2vec-large-chinese|38.235|77.941|88.971| | |基础模型|
+|-|text2vec-base-chinese-sentence|36.029|69.853|82.353| | |基础模型|
+|-|text2vec-base-chinese-paraphrase|40.441|64.706|78.676| | |基础模型|
+|-|text2vec-bge-large-chinese|15.441|36.765|44.853| | |基础模型|
+|-|Ernie-model/ernie-1.0-base-zh|2.206|6.618|16.912| | |基础模型|
+|-|Ernie-model/ernie-1.0-large-zh-cw|6.618|13.971|18.382| | |基础模型|
+|-|Ernie-model/ernie-3.0-medium-zh|0.735|5.147|7.353| | |基础模型|
+|-|Ernie-model/ernie-3.0-base-zh|0.0|0.0|0.735| | |基础模型|
+|-|Ernie-model/rocketqa-zh-dureader-query-encoder|47.794|78.676|93.382| | |基础模型|
+|-|Ernie-model/rocketqa-zh-base-query-encoder|32.353|63.235|72.794| | |基础模型|
 
 ## 更新日志
 
