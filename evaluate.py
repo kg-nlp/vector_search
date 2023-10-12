@@ -84,7 +84,7 @@ def evaluate_result(model_name):
         print("recall@{}={}".format(key, val))
         res.append(str(val))
     result.write('|-|{}|{}|{}|{}| | |基础模型|'.format(model_name,recall_N[0], recall_N[1], recall_N[2]) + "\n")
-    print('|-|{}|{}|{}|{}| | |基础模型|'.format(model_name,recall_N[0], recall_N[1], recall_N[2]))
+    print('|-|{}|{}|{}|{}|基础模型|'.format(model_name,recall_N[0], recall_N[1], recall_N[2]))
 
 if __name__ == "__main__":
 

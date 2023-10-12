@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # model_name = 'm3e-small'  # 512
     # model_name = 'm3e-base'  # 768
     # model_name = 'm3e-large'  # 1024
-
+    # model_name = 'm3e-base-custom'  # 768
     # model_name = 'bge-small-zh'  # 512
     # model_name = 'bge-base-zh'  # 768
     # model_name = 'bge-large-zh'  # 1024
@@ -48,6 +48,7 @@ if __name__ == '__main__':
     model_config = {
         # 'm3e-small': 'torch',
         # 'm3e-base': 'torch',
+        'm3e-base-custom': 'torch'
         # 'm3e-large': 'torch',
         # 'bge-small-zh': 'torch',
         # 'bge-base-zh': 'torch',
@@ -57,12 +58,13 @@ if __name__ == '__main__':
         # 'text2vec-base-chinese-sentence': 'torch',
         # 'text2vec-base-chinese-paraphrase': 'torch',
         # 'text2vec-bge-large-chinese': 'torch',
-        'Ernie-model/ernie-1.0-base-zh':'paddle',
-        'Ernie-model/ernie-1.0-large-zh-cw':'paddle',
-        "Ernie-model/ernie-3.0-medium-zh": 'paddle',
-        'Ernie-model/ernie-3.0-base-zh': 'paddle',
-        'Ernie-model/rocketqa-zh-dureader-query-encoder': 'paddle',
-        'Ernie-model/rocketqa-zh-base-query-encoder': 'paddle'
+        # 'Ernie-model/ernie-1.0-base-zh':'paddle',
+        # 'Ernie-model/ernie-1.0-large-zh-cw':'paddle',
+        # "Ernie-model/ernie-3.0-medium-zh": 'paddle',
+        # 'Ernie-model/ernie-3.0-base-zh': 'paddle',
+        # 'Ernie-model/rocketqa-zh-dureader-query-encoder': 'paddle',
+        # 'Ernie-model/rocketqa-zh-base-query-encoder': 'paddle',
+        # "Ernie-model/rocketqa-zh-dureader-query-encoder-256" : "simcse_paddle",
     }
     tool_type = ['hnswlib','faiss','milvus','es']
 
@@ -74,10 +76,10 @@ if __name__ == '__main__':
         logger.info('+'*100)
         logger.info('处理模型{}'.format(model_name))
         output_file = os.path.join(data_dir, model_name + '.npy')
-        # logger.info('-'*10+'开始提取向量特征'+'-'*10)
-        # get_vector(model_name, corpus_file, output_file, model_type=model_type)
+        logger.info('-'*10+'开始提取向量特征'+'-'*10)
+        get_vector(model_name, corpus_file, output_file, model_type=model_type)
         logger.info('-'*10+'开发入库召回'+'-'*10)
-        get_dev_result(model_name, corpus_file, output_file, query_file, recall_result_file, tool_type=tool_type[2],
+        get_dev_result(model_name, corpus_file, output_file, query_file, recall_result_file, tool_type=tool_type[0],
                        model_type=model_type, batch_size=128)
         logger.info('-'*10+'评测结果'+'-'*10)
         evaluate_result(model_name)

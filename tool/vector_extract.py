@@ -12,7 +12,6 @@
 import sys
 sys.path.append('/workspace/custom_project/vector_search')
 
-from model.open_model import get_torch_model,get_paddle_model
 from tool.data import convert_example_test,gen_id2corpus,create_dataloader
 from tqdm import tqdm
 import os
@@ -34,6 +33,7 @@ data_dir = current_dir.replace('tool','data')
 def get_single_vector(model_name,corpus_list,batch_size=128,output_file='',num=1,model_type='torch'):
     total_embedding = []
     if model_type == 'torch':
+        from get_model import get_torch_model
         model = get_torch_model(model_name)
         length = len(corpus_list)
         for i in tqdm(range(0, length, batch_size), desc=str(num)+'提取向量'):
@@ -42,6 +42,7 @@ def get_single_vector(model_name,corpus_list,batch_size=128,output_file='',num=1
             embedding = model.encode(corpus_list[start:end], normalize_embeddings=True)
             total_embedding.append(embedding)
     elif model_type == 'paddle':
+        from get_model import get_paddle_model
         tokenizer,model = get_paddle_model(model_name)
         trans_func = partial(convert_example_test, tokenizer=tokenizer, max_seq_length=256)
         batchify_fn = lambda samples, fn=Tuple(
@@ -63,14 +64,31 @@ def get_single_vector(model_name,corpus_list,batch_size=128,output_file='',num=1
                 sequence_output, cls_embedding = model(input_ids, token_type_ids=token_type_ids,position_ids=None, attention_mask=None)
                 text_embeddings = F.normalize(cls_embedding, p=2, axis=-1)
                 total_embedding.append(text_embeddings.numpy())
+    elif model_type == 'simcse_paddle':
+        from get_model import get_paddle_simcse_model
+        tokenizer, model = get_paddle_simcse_model(model_name)
+        trans_func = partial(convert_example_test, tokenizer=tokenizer, max_seq_length=256)
+        batchify_fn = lambda samples, fn=Tuple(
+            Pad(axis=0, pad_val=tokenizer.pad_token_id, dtype="int64"),  # text_input
+            Pad(axis=0, pad_val=tokenizer.pad_token_type_id, dtype="int64"),  # text_segment
+        ): [data for data in fn(samples)]
+        corpus_list = [{idx: text} for idx, text in enumerate(corpus_list)]
+        corpus_ds = MapDataset(corpus_list)
+        corpus_data_loader = create_dataloader(
+            corpus_ds, mode="predict", batch_size=batch_size, batchify_fn=batchify_fn, trans_fn=trans_func
+        )
+
+        for text_embeddings in model.get_semantic_embedding(corpus_data_loader):
+            total_embedding.append(text_embeddings.numpy())
+
     total_np_embedding = np.concatenate(total_embedding, axis=0)
+
     if output_file:
-    #     with open('./b.text', 'w') as fw:
-    #         for i in total_np_embedding:
-    #             fw.write(str(i.tolist()[:10]) + '\n')
         np.save(output_file, total_np_embedding)  # 提取向量文件
     else:
         return total_embedding  # 直接返回向量结果
+
+
 
 
 '''多进程提取向量'''

@@ -19,7 +19,7 @@ import paddle.nn as nn
 import paddle.nn.functional as F
 
 class SimCSE(nn.Layer):
-    def __init__(self, pretrained_model, dropout=None, margin=0.0, scale=20, output_emb_size=0):
+    def __init__(self, pretrained_model, dropout=None, margin=0.0, scale=20, output_emb_size=256):
 
         super().__init__()
 
@@ -47,7 +47,7 @@ class SimCSE(nn.Layer):
         ]
     )
     def get_pooled_embedding(
-        self, input_ids, token_type_ids=None, position_ids=None, attention_mask=None, with_pooler=True
+            self, input_ids, token_type_ids=None, position_ids=None, attention_mask=None, with_pooler=True
     ):
 
         # Note: cls_embedding is poolerd embedding with act tanh
@@ -55,7 +55,13 @@ class SimCSE(nn.Layer):
 
         if with_pooler is False:
             cls_embedding = sequence_output[:, 0, :]
+
+        if self.output_emb_size > 0:
+            cls_embedding = self.emb_reduce_linear(cls_embedding)
+
+        cls_embedding = self.dropout(cls_embedding)
         cls_embedding = F.normalize(cls_embedding, p=2, axis=-1)
+
         return cls_embedding
 
     def get_semantic_embedding(self, data_loader):

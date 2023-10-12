@@ -17,6 +17,7 @@ torch_model_list = [
 'm3e-small',
 'm3e-large',
 'm3e-base',
+'m3e-base-custom',
 'bge-small-zh',
 'bge-base-zh',
 'bge-large-zh',
@@ -34,7 +35,7 @@ torch_model_list = [
 ]
 paddle_model_list = []
 
-pretrain_model_dir = os.path.abspath(os.path.dirname(__file__)).replace('vector_search/model','pretrain_model_file')
+pretrain_model_dir = os.path.abspath(os.path.dirname(__file__)).replace('vector_search','pretrain_model_file')
 logger.info('预训练模型目录 '+ pretrain_model_dir)
 logger.info('环境目录 '+str(os.listdir(pretrain_model_dir)))
 
@@ -53,7 +54,7 @@ def get_paddle_model(model_name):
     from paddlenlp.transformers import AutoModel, AutoTokenizer
     # from .paddle_model import SimCSE
     model_name = os.path.join(pretrain_model_dir,model_name)
-    paddle.set_device('gpu')
+    # paddle.set_device('gpu')
     logger.info('loading... '+ model_name)
     # if paddle.distributed.get_world_size() > 1:
     #     paddle.distributed.init_parallel_env()
@@ -68,7 +69,19 @@ def get_paddle_model(model_name):
     # print(inner_model)
     return tokenizer,pretrained_model
 
-
+'''加载自定义的paddle模型(simcse,in batch negative训练过)'''
+def get_paddle_simcse_model(model_name):
+    import paddle
+    from paddlenlp.transformers import AutoModel, AutoTokenizer
+    from model.paddle_model import SimCSE
+    model_name = os.path.join(pretrain_model_dir,model_name)
+    logger.info('loading... '+ model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    pretrained_model = AutoModel.from_pretrained(model_name)
+    model = SimCSE(pretrained_model)
+    state_dict = paddle.load(os.path.join(model_name, 'model_state.pdparams'))
+    model.set_dict(state_dict)
+    return tokenizer, model
 
 if __name__ == '__main__':
     # import torch

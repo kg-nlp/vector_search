@@ -29,6 +29,7 @@ model_dim = {
     'm3e-small':512,
     'm3e-base':768,
     'm3e-large':1024 ,
+    'm3e-base-custom': 768,
     'bge-small-zh':512 ,
     'bge-base-zh':768 ,
     'bge-large-zh':1024,
@@ -42,7 +43,8 @@ model_dim = {
     "Ernie-model/ernie-3.0-medium-zh":768,
     'Ernie-model/ernie-3.0-base-zh':768,
     'Ernie-model/rocketqa-zh-dureader-query-encoder':768,
-    'Ernie-model/rocketqa-zh-base-query-encoder': 768
+    'Ernie-model/rocketqa-zh-base-query-encoder': 768,
+    "Ernie-model/rocketqa-zh-dureader-query-encoder-256":256,
 }
 
 '''根据验证集,召回库,输出结果'''
@@ -62,13 +64,13 @@ def get_dev_result(model_name,corpus_file,npy_file,query_file,recall_result_file
     query_list,_ = gen_text_file(query_file)
 
     # 提取验证集向量
-    if model_type == 'torch':
+    if 'torch' in model_type:
         if model_name.startswith('bge'):
-            prompt_query_list= ['为这个句子生成表示以用于检索相关文章：'+i for i in query_list]
+            prompt_query_list= ['为这个句子生成表示以用于检索相关文章：'+i for i in query_list]  # bge需要增加指令
             query_total_embedding = get_single_vector(model_name=model_name,corpus_list=prompt_query_list,batch_size=batch_size,model_type=model_type)
         else:
             query_total_embedding = get_single_vector(model_name=model_name,corpus_list=query_list,batch_size=batch_size,model_type=model_type)
-    elif model_type == 'paddle':
+    elif 'paddle' in model_type :
         query_total_embedding = get_single_vector(model_name=model_name,corpus_list=query_list,batch_size=batch_size,model_type=model_type)
     # 实例化向量工具
     if tool_type == 'hnswlib':
